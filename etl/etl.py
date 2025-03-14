@@ -3,7 +3,7 @@ from google.cloud import bigquery
 import os
 
 # Set Google Cloud authentication dynamically & check if the file exists
-credential_path = "C:/Users/spcha/Downloads/dw-midterm-project-5bac73fb99ed.json"
+credential_path = "C:\\Users\\spcha\\Downloads\\dw-midterm-project-94ccd5c877df.json"
 if not os.path.exists(credential_path):
     raise FileNotFoundError(f"Service account file not found: {credential_path}")
 
