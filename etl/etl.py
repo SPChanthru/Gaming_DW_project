@@ -27,12 +27,12 @@ missing_files = [file for file, path in file_paths.items() if not os.path.exists
 if missing_files:
     raise FileNotFoundError(f"CSV files not found: {', '.join(missing_files)}")
 
-# ✅ Load the CSV files into DataFrames
+#  Load the CSV files into DataFrames
 players_df = pd.read_csv(file_paths["players_file"])
 sessions_df = pd.read_csv(file_paths["sessions_file"])
 purchases_df = pd.read_csv(file_paths["purchases_file"])
 
-# ✅ Validate that required columns exist
+# Validate that required columns exist
 required_players_cols = {"player_id", "username", "level", "experience_points", "region"}
 required_sessions_cols = {"session_id", "player_id", "game_id", "session_date", "duration"}
 required_purchases_cols = {"player_id", "item_price", "purchase_date"}
@@ -94,7 +94,7 @@ def check_and_create_table(table_name, schema):
     try:
         client.get_table(table_ref)  # Check if table exists
     except:
-        print(f"⚠️ Table {table_name} does not exist. Creating it...")
+        print(f"Table {table_name} does not exist. Creating it...")
         table = bigquery.Table(table_ref, schema=schema)
         client.create_table(table)
 
