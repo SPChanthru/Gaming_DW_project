@@ -64,12 +64,14 @@ Click Create and then Continue.
 Assign Roles:
 
 Assign the BigQuery Admin role to the service account to allow it to manage BigQuery resources.
+![bq](screenshots/bqroles.png)
 Create a Key:
 Click on the service account you just created.
 Go to the Keys tab.
-![bq](path/to/diagram.png)
+![bq](screenshots/key_o.png.png)
 
 Click Add Key > Create New Key.
+![bq](screenshots/key_2.png)
 Select JSON and click Create. This will download a JSON key file to your computer.
 
 Set the Environment Variable:
@@ -89,9 +91,16 @@ Click on your project name in the left-hand panel.
 Click Create Dataset.
 Provide a name for your dataset and configure any additional settings as needed.
 
-upload the raw datasets as csv files (purchases.csv, players.csv, csv.csv(sessions))
 
-Click Create Dataset.
+
+Click Create Dataset
+
+![bq](screenshots/create_data.png)
+![bq](screenshots/create_data2.png)
+
+
+
+upload the raw datasets as csv files in the created dataset (purchases.csv, players.csv, csv.csv(sessions))
 
 Create Tables:
 Use the SQL scripts provided in the scripts/ directory to create the necessary tables in your BigQuery dataset.
@@ -125,6 +134,8 @@ To automate the ETL pipeline, you can schedule it using Windows Task Scheduler. 
    - Review the settings and click **Finish** to create the task.
    - Ensure the task is enabled and will run as scheduled.
 
+![bq](screenshots/wts.png)
+
 ## 4. 🚀 Running the ETL Pipeline
 
 You can run the ETL pipeline manually or rely on the scheduled task for automation.
@@ -145,6 +156,8 @@ Run the ETL Script:
 Execute the ETL script using Python.
 
 use the command :  python etl.py
+
+![bq](screenshots/etl.png)
 
 Note: Regularly monitor the Task Scheduler and ETL logs to ensure that the pipeline runs smoothly and any issues are addressed promptly.
 
