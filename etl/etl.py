@@ -1,119 +1,180 @@
-import pandas as pd
-from google.cloud import bigquery
-import os
+# 🎮 Gaming Data Warehouse Project
 
-# Set Google Cloud authentication dynamically & check if the file exists
-credential_path = r"C:\Users\spcha\Downloads\dw-midterm-project-94ccd5c877df.json"
-if not os.path.exists(credential_path):
-    raise FileNotFoundError(f"Service account file not found: {credential_path}")
+## 📚 Project Overview
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
+This project implements a **Gaming Data Warehouse** to analyze player engagement, game sessions, and in-game purchases. The ETL pipeline automates data extraction, transformation, and loading into **Google BigQuery** using **Windows Task Scheduler**.
 
-# Initialize BigQuery Client
-client = bigquery.Client()
-project_id = "dw-midterm-project"  
-dataset_name = "gaming_sessions"  
-dataset_id = f"{project_id}.{dataset_name}"
+## 📑 Table of Contents
 
-# Define file paths using a dictionary for better organization
-file_paths = {
-    "players_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\players.csv",
-    "sessions_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\csv.csv",
-    "purchases_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\purchases.csv"
-}
+1. [📁 Project Structure]
+2. [⚙️ Setup Instructions]
+3. [🚀 Running the ETL Pipeline]
+4. [⏰ ETL Automation with Task Scheduler]
+---
 
-# Check if CSV files exist before reading and raise an error if not found
-missing_files = [file for file, path in file_paths.items() if not os.path.exists(path)]
-if missing_files:
-    raise FileNotFoundError(f"CSV files not found: {', '.join(missing_files)}")
+## 📁 Project Structure
 
-#  Load the CSV files into DataFrames
-players_df = pd.read_csv(file_paths["players_file"])
-sessions_df = pd.read_csv(file_paths["sessions_file"])
-purchases_df = pd.read_csv(file_paths["purchases_file"])
+```
+GAMING_DW_PROJECT/
+├── datasets/
+│   ├── csv.csv                # Contains session data
+│   ├── players.csv            # Contains player data
+│   ├── purchases.csv          # Contains purchase data
+├── documentation/
+│   ├── data_dictionary.md     # Documentation for data fields and definitions
+│   ├── final_document.pdf     # Final documentation for the project
+├── ER_diagram/
+│   ├── dimensional_model_schema.png  # Diagram of the dimensional model
+│   ├── normalized_schema.png         # Diagram of the normalized schema
+├── etl/
+│   ├── etl.py                # Main ETL script
+│   ├── run_etl.bat           # Batch file to run the ETL process
+├── raw-data/
+│   ├── game_sessions.csv      # Raw session data
+│   ├── players.json           # Raw player data in JSON format
+│   ├── purchases.xml          # Raw purchase data in XML format
+├── scripts/
+│   ├── dimensional_model.sql   # SQL script for creating the dimensional model
+│   ├── staging_tables.sql      # SQL script for creating staging tables
+├── screenshots/               # Folder containing all necessary screenshots
+│   ├── bqroles.png
+│   ├── key_o.png
+│   ├── key_2.png
+│   ├── create_data.png
+│   ├── create_data2.png
+│   ├── wts.png
+│   ├── etl.png
+├── LICENSE                    # License file for the project
+├── README.md                  # This README file
+```
 
-# Validate that required columns exist
-required_players_cols = {"player_id", "username", "level", "experience_points", "region"}
-required_sessions_cols = {"session_id", "player_id", "game_id", "session_date", "duration"}
-required_purchases_cols = {"player_id", "item_price", "purchase_date"}
+> **Note:** The final documentation includes all the deliverables and screenshots.
 
-for df, required_cols, name in [
-    (players_df, required_players_cols, "players.csv"),
-    (sessions_df, required_sessions_cols, "sessions.csv"),
-    (purchases_df, required_purchases_cols, "purchases.csv"),
-]:
-    missing_cols = required_cols - set(df.columns)
-    if missing_cols:
-        raise ValueError(f"Missing columns in {name}: {missing_cols}")
+---
 
-# Add missing columns to players_df
-players_df['player_key'] = None  # Placeholder for player_key
-players_df['player_source_id'] = players_df['player_id']  # Assuming player_id is the source ID
-players_df['valid_from'] = pd.to_datetime('today').date()  # Set to today's date
-players_df['valid_to'] = pd.to_datetime('2262-04-11').date()  # Set to a far future date within bounds
-players_df['is_current'] = True  # Set to True
+## ⚙️ Setup Instructions
 
-# Transform: Convert date columns to proper format
-sessions_df["session_date"] = pd.to_datetime(sessions_df["session_date"]).dt.date
-purchases_df["purchase_date"] = pd.to_datetime(purchases_df["purchase_date"]).dt.date
+### Prerequisites
 
-# Aggregate total purchases per player
-purchases_agg = purchases_df.groupby("player_id")["item_price"].sum().reset_index()
-purchases_agg.rename(columns={"item_price": "total_spent"}, inplace=True)
+- **Google Cloud SDK** installed and authenticated.
+- **BigQuery enabled** in Google Cloud.
+- **Python 3.x** installed.
+- **Required Python libraries** (install via pip):
+  ```sh
+  pip install pandas google-cloud-bigquery
+  ```
 
-# Merge sessions with aggregated purchases
-fact_game_sessions = sessions_df.merge(purchases_agg, on="player_id", how="left")
-fact_game_sessions = fact_game_sessions.assign(total_spent=fact_game_sessions["total_spent"].fillna(0))
+### Setting Up Google Cloud Authentication
 
-# Define BigQuery schemas
-dim_player_schema = [
-    bigquery.SchemaField("player_key", "INTEGER"),
-    bigquery.SchemaField("player_source_id", "INTEGER"),
-    bigquery.SchemaField("username", "STRING"),
-    bigquery.SchemaField("level", "INTEGER"),
-    bigquery.SchemaField("experience_points", "INTEGER"),
-    bigquery.SchemaField("region", "STRING"),
-    bigquery.SchemaField("valid_from", "DATE"),
-    bigquery.SchemaField("valid_to", "DATE"),
-    bigquery.SchemaField("is_current", "BOOLEAN"),
-]
+#### Create a Service Account:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Navigate to **IAM & Admin > Service Accounts**.
+3. Click **Create Service Account**.
+4. Provide a name and description for the service account.
+5. Click **Create** and then **Continue**.
 
-fact_game_sessions_schema = [
-    bigquery.SchemaField("session_id", "INTEGER"),
-    bigquery.SchemaField("player_id", "INTEGER"),
-    bigquery.SchemaField("game_id", "INTEGER"),
-    bigquery.SchemaField("session_date", "DATE"),
-    bigquery.SchemaField("duration", "INTEGER"),
-    bigquery.SchemaField("total_spent", "FLOAT"),
-]
+#### Assign Roles:
+- Assign the **BigQuery Admin** role to the service account to allow it to manage BigQuery resources.
 
-# Function to check if a table exists & create it if needed
-def check_and_create_table(table_name, schema):
-    table_ref = f"{dataset_id}.{table_name}"
-    
-    try:
-        client.get_table(table_ref)  # Check if table exists
-    except:
-        print(f"Table {table_name} does not exist. Creating it...")
-        table = bigquery.Table(table_ref, schema=schema)
-        client.create_table(table)
+![BigQuery Roles](screenshots/bqroles.png)
 
-# Function to load data into BigQuery
-def load_to_bigquery(df, table_name, schema):
-    check_and_create_table(table_name, schema)  # Ensure table exists
+#### Create a Key:
+1. Click on the service account you just created.
+2. Go to the **Keys** tab.
 
-    table_ref = f"{dataset_id}.{table_name}"
-    job_config = bigquery.LoadJobConfig(
-        schema=schema,
-        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,  # Overwrites existing table
-    )
-    
-    job = client.load_table_from_dataframe(df, table_ref, job_config=job_config)
-    job.result()  # Wait for the upload to complete
-    print(f" Uploaded {table_name} successfully!")
+![Keys Tab](screenshots/key_o.png)
 
-# Load tables into BigQuery
-load_to_bigquery(players_df, "dim_player", dim_player_schema)  # Changed table name to "dim_player"
-load_to_bigquery(fact_game_sessions, "fact_game_sessions", fact_game_sessions_schema)
+3. Click **Add Key > Create New Key**.
+4. Select **JSON** and click **Create**.
 
-print("🚀 ETL Automation Complete!")
+![Create Key](screenshots/key_2.png)
+
+This will download a JSON key file to your computer.
+
+#### Set the Environment Variable:
+
+Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file.
+```sh
+set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your\key.json
+```
+
+#### Configuring BigQuery
+
+- **Create a Dataset**:
+  1. Navigate to **BigQuery** in Google Cloud Console.
+  2. Click on your project name in the left-hand panel.
+  3. Click **Create Dataset**.
+  4. Provide a name and configure any additional settings.
+
+![Create Dataset](screenshots/create_data.png)
+
+![Dataset Configuration](screenshots/create_data2.png)
+
+- **Upload the raw datasets as CSV files** (`purchases.csv`, `players.csv`, `csv.csv(sessions)`).
+
+- **Create Tables**:
+  Use the SQL scripts in the `scripts/` directory to create the necessary tables in your BigQuery dataset.
+
+---
+
+## 🚀 Running the ETL Pipeline
+
+You can run the ETL pipeline manually or rely on the scheduled task.
+
+### Manual Execution
+
+1. **Open a Command Prompt**:
+   - Press `Win + R`, type `cmd`, and press `Enter`.
+
+2. **Navigate to the ETL Directory**:
+   ```sh
+   cd path\to\your\project\etl
+   ```
+
+3. **Run the ETL Script**:
+   ```sh
+   python etl.py
+   ```
+
+![ETL Execution](screenshots/etl.png)
+
+---
+
+## ⏰ ETL Automation with Task Scheduler
+
+To automate the ETL pipeline, use **Windows Task Scheduler**.
+
+### Schedule the Task
+
+1. **Open Task Scheduler**:
+   - Press `Win + R`, type `taskschd.msc`, and press `Enter`.
+
+2. **Create a Basic Task**:
+   - Click **Create Basic Task** in the Actions pane.
+   - Provide a name, e.g., **Gaming_ETL_Job**, and click **Next**.
+
+3. **Set the Trigger**:
+   - Choose **Daily** or **Hourly**.
+   - Configure the time and frequency settings.
+
+4. **Select the Action**:
+   - Choose **Start a Program** and click **Next**.
+
+5. **Specify the Program**:
+   - Click **Browse** and select `run_etl.bat` from your project directory.
+
+6. **Finish the Task Setup**:
+   - Click **Finish** to create the task.
+   - Ensure the task is enabled.
+
+![Task Scheduler](screenshots/wts.png)
+
+---
+
+### Final Steps
+
+- Ensure that your Python environment is correctly set up.
+- Verify Google Cloud SDK authentication.
+- Test the ETL script manually before enabling automation.
+
+> **Note:** Keep your JSON key file secure, as it contains sensitive authentication credentials.
