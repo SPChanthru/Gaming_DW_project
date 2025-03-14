@@ -18,37 +18,35 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
 ## 1. 📁 Project Structure
 
 GAMING_DW_PROJECT/
-│
-├── datasets/
-│ ├── csv.csv # Contains session data
-│ ├── players.csv # Contains player data
-│ └── purchases.csv # Contains purchase data
-│
-├── documentation/
-│ ├── data_dictionary.md # Documentation for data fields and definitions
-│ └── final_doc.md # Final documentation for the project
-│
-├── ER_diagram/
-│ ├── dimensional_model_schema.png # Diagram of the dimensional model
-│ └── normalized_schema.png # Diagram of the normalized schema
-│
-├── etl/
-│ ├── etl.py # Main ETL script
-│ └── run_etl.bat # Batch file to run the ETL process
-│
-├── raw-data/
-│ ├── game_sessions.csv # Raw session data
-│ ├── players.json # Raw player data in JSON format
-│ └── purchases.xml # Raw purchase data in XML format
-│
-├── screenshots/ # Directory for screenshots related to the project
-│
-├── scripts/
-│ ├── dimensional_model.sql # SQL script for creating the dimensional model
-│ └── staging_tables.sql # SQL script for creating staging tables
-│
-├── LICENSE # License file for the project
-└── README.md # This README file
+datasets/
+csv.csv - Contains session data
+players.csv - Contains player data
+purchases.csv - Contains purchase data
+
+documentation/
+data_dictionary.md - Documentation for data fields and definitions
+final_doc.md - Final documentation for the project
+ER_diagram/
+dimensional_model_schema.png - Diagram of the dimensional model
+normalized_schema.png - Diagram of the normalized schema
+
+etl/
+etl.py - Main ETL script
+run_etl.bat - Batch file to run the ETL process
+
+raw-data/
+game_sessions.csv - Raw session data
+players.json - Raw player data in JSON format
+purchases.xml - Raw purchase data in XML format
+
+screenshots/ - Directory for screenshots related to the project
+
+scripts/
+dimensional_model.sql - SQL script for creating the dimensional model
+staging_tables.sql - SQL script for creating staging tables
+
+LICENSE - License file for the project
+README.md - This README file
 
 ## 2. ⚙️ Setup Instructions
 
