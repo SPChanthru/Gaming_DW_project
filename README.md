@@ -22,7 +22,7 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
      - `purchases.csv`         - Contains purchase data
    - **documentation/**
      - `data_dictionary.md`     - Documentation for data fields and definitions
-     - `final_doc.md`           - Final documentation for the project
+     - `final_document.pdf`           - Final documentation for the project
    - **ER_diagram/**
      - `dimensional_model_schema.png`  - Diagram of the dimensional model
      - `normalized_schema.png`          - Diagram of the normalized schema
@@ -33,12 +33,13 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
      - `game_sessions.csv`      - Raw session data
      - `players.json`           - Raw player data in JSON format
      - `purchases.xml`          - Raw purchase data in XML format
-   - **screenshots/**           - Directory for screenshots related to the project
+
    - **scripts/**
      - `dimensional_model.sql`   - SQL script for creating the dimensional model
      - `staging_tables.sql`      - SQL script for creating staging tables
    - `LICENSE`                  - License file for the project
    - `README.md`                - This README file
+   - 
 ## 2. ⚙️ Setup Instructions
 
 ### Prerequisites
