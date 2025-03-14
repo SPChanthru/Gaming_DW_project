@@ -15,7 +15,6 @@ project_id = "dw-midterm-project"
 dataset_name = "gaming_sessions"  
 dataset_id = "dw-midterm-project.gaming_sessions"  # Corrected this line
 
-
 # Define file paths using a dictionary for better organization
 file_paths = {
     "players_file": "C:/Users/spcha/Desktop/gaming_dw_project/datasets/players.csv",
@@ -32,7 +31,6 @@ if missing_files:
 players_df = pd.read_csv(file_paths["players_file"])
 sessions_df = pd.read_csv(file_paths["sessions_file"])
 purchases_df = pd.read_csv(file_paths["purchases_file"])
-
 
 # ✅ Validate that required columns exist
 required_players_cols = {"player_id", "username", "level", "experience_points", "region"}
@@ -59,7 +57,6 @@ purchases_agg.rename(columns={"item_price": "total_spent"}, inplace=True)
 # Merge sessions with aggregated purchases
 fact_game_sessions = sessions_df.merge(purchases_agg, on="player_id", how="left")
 fact_game_sessions = fact_game_sessions.assign(total_spent=fact_game_sessions["total_spent"].fillna(0))
-
 
 # Define BigQuery schemas
 players_schema = [
@@ -104,8 +101,8 @@ def load_to_bigquery(df, table_name, schema):
     job.result()  # Wait for the upload to complete
     print(f" Uploaded {table_name} successfully!")
 
-#  Load tables into BigQuery
-load_to_bigquery(players_df, "dim_players", players_schema)
+# Load tables into BigQuery
+load_to_bigquery(players_df, "dim_player", players_schema)  # Changed table name to "dim_player"
 load_to_bigquery(fact_game_sessions, "fact_game_sessions", fact_game_sessions_schema)
 
 print("🚀 ETL Automation Complete!")
