@@ -6,42 +6,54 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
 
 ## 📑 Table of Contents
 
-1. [📁 Project Structure]
-2. [⚙️ Setup Instructions]
-3. [⏰ ETL Automation with Task Scheduler]
-4. [🚀 Running the ETL Pipeline]
+1. [📁 Project Structure](#project-structure)
+2. [⚙️ Setup Instructions](#setup-instructions)
+3. [⏰ ETL Automation with Task Scheduler](#etl-automation-with-task-scheduler)
+4. [🚀 Running the ETL Pipeline](#running-the-etl-pipeline)
 
 ---
 
-# Project Structure
+## 📁 Project Structure
 
-1. **GAMING_DW_PROJECT/**
-   - **datasets/**
-     - `csv.csv`               - Contains session data
-     - `players.csv`           - Contains player data
-     - `purchases.csv`         - Contains purchase data
-   - **documentation/**
-     - `data_dictionary.md`     - Documentation for data fields and definitions
-     - `final_document.pdf`     - Final documentation for the project
-   - **ER_diagram/**
-     - `dimensional_model_schema.png`  - Diagram of the dimensional model
-     - `normalized_schema.png`         - Diagram of the normalized schema
-   - **etl/**
-     - `etl.py`                - Main ETL script
-     - `run_etl.bat`           - Batch file to run the ETL process
-   - **raw-data/**
-     - `game_sessions.csv`      - Raw session data
-     - `players.json`           - Raw player data in JSON format
-     - `purchases.xml`          - Raw purchase data in XML format
-   - **scripts/**
-     - `dimensional_model.sql`   - SQL script for creating the dimensional model
-     - `staging_tables.sql`      - SQL script for creating staging tables
-   - `LICENSE`                  - License file for the project
-   - `README.md`                - This README file
+```
+GAMING_DW_PROJECT/
+├── datasets/
+│   ├── csv.csv                # Contains session data
+│   ├── players.csv            # Contains player data
+│   ├── purchases.csv          # Contains purchase data
+├── documentation/
+│   ├── data_dictionary.md     # Documentation for data fields and definitions
+│   ├── final_document.pdf     # Final documentation for the project
+├── ER_diagram/
+│   ├── dimensional_model_schema.png  # Diagram of the dimensional model
+│   ├── normalized_schema.png         # Diagram of the normalized schema
+├── etl/
+│   ├── etl.py                # Main ETL script
+│   ├── run_etl.bat           # Batch file to run the ETL process
+├── raw-data/
+│   ├── game_sessions.csv      # Raw session data
+│   ├── players.json           # Raw player data in JSON format
+│   ├── purchases.xml          # Raw purchase data in XML format
+├── scripts/
+│   ├── dimensional_model.sql   # SQL script for creating the dimensional model
+│   ├── staging_tables.sql      # SQL script for creating staging tables
+├── screenshots/               # Folder containing all necessary screenshots
+│   ├── bqroles.png
+│   ├── key_o.png
+│   ├── key_2.png
+│   ├── create_data.png
+│   ├── create_data2.png
+│   ├── wts.png
+│   ├── etl.png
+├── LICENSE                    # License file for the project
+├── README.md                  # This README file
+```
 
 > **Note:** The final documentation includes all the deliverables and screenshots.
 
-## 2. ⚙️ Setup Instructions
+---
+
+## ⚙️ Setup Instructions
 
 ### Prerequisites
 
@@ -51,121 +63,121 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
 - **Required Python libraries** (install via pip):
   ```sh
   pip install pandas google-cloud-bigquery
+  ```
 
-Setting Up Google Cloud Authentication
-Create a Service Account:
+### Setting Up Google Cloud Authentication
 
-Go to the Google Cloud Console.
-Navigate to IAM & Admin > Service Accounts.
-Click Create Service Account.
-Provide a name and description for the service account.
-Click Create and then Continue.
+#### Create a Service Account:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Navigate to **IAM & Admin > Service Accounts**.
+3. Click **Create Service Account**.
+4. Provide a name and description for the service account.
+5. Click **Create** and then **Continue**.
 
-Assign Roles:
+#### Assign Roles:
+- Assign the **BigQuery Admin** role to the service account to allow it to manage BigQuery resources.
 
-Assign the BigQuery Admin role to the service account to allow it to manage BigQuery resources.
-![bq](screenshots/bqroles.png)
-Create a Key:
-Click on the service account you just created.
-Go to the Keys tab.
-![bq](screenshots/key_o.png.png)
+![BigQuery Roles](screenshots/bqroles.png)
 
-Click Add Key > Create New Key.
-![bq](screenshots/key_2.png)
-Select JSON and click Create. This will download a JSON key file to your computer.
+#### Create a Key:
+1. Click on the service account you just created.
+2. Go to the **Keys** tab.
 
-Set the Environment Variable:
+![Keys Tab](screenshots/key_o.png)
 
-Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of the JSON key file. 
+3. Click **Add Key > Create New Key**.
+4. Select **JSON** and click **Create**.
 
-This allows your application to authenticate with Google Cloud using the service account.
+![Create Key](screenshots/key_2.png)
 
-   use this command
-   set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your\key.json
+This will download a JSON key file to your computer.
 
-Configuring BigQuery
+#### Set the Environment Variable:
 
-Create a Dataset:
-In the Google Cloud Console, navigate to BigQuery.
-Click on your project name in the left-hand panel.
-Click Create Dataset.
-Provide a name for your dataset and configure any additional settings as needed.
+Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file.
+```sh
+set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your\key.json
+```
 
+#### Configuring BigQuery
 
+- **Create a Dataset**:
+  1. Navigate to **BigQuery** in Google Cloud Console.
+  2. Click on your project name in the left-hand panel.
+  3. Click **Create Dataset**.
+  4. Provide a name and configure any additional settings.
 
-Click Create Dataset
+![Create Dataset](screenshots/create_data.png)
 
-![bq](screenshots/create_data.png)
-![bq](screenshots/create_data2.png)
+![Dataset Configuration](screenshots/create_data2.png)
 
+- **Upload the raw datasets as CSV files** (`purchases.csv`, `players.csv`, `csv.csv(sessions)`).
 
+- **Create Tables**:
+  Use the SQL scripts in the `scripts/` directory to create the necessary tables in your BigQuery dataset.
 
-upload the raw datasets as csv files in the created dataset (purchases.csv, players.csv, csv.csv(sessions))
+---
 
-Create Tables:
-Use the SQL scripts provided in the scripts/ directory to create the necessary tables in your BigQuery dataset.
-You can execute these scripts directly in the BigQuery console or using the bq command-line tool.
+## ⏰ ETL Automation with Task Scheduler
 
-## 3. ⏰ ETL Automation with Task Scheduler
-
-To automate the ETL pipeline, you can schedule it using Windows Task Scheduler. This ensures that your data is regularly updated without manual intervention.
+To automate the ETL pipeline, use **Windows Task Scheduler**.
 
 ### Schedule the Task
 
 1. **Open Task Scheduler**:
-   - Press `Win + R`, type `taskschd.msc`, and press `Enter` to open Task Scheduler.
+   - Press `Win + R`, type `taskschd.msc`, and press `Enter`.
 
 2. **Create a Basic Task**:
-   - Click on **Create Basic Task** in the Actions pane.
-   - Provide a name for the task, such as **Gaming_ETL_Job**, and click **Next**.
+   - Click **Create Basic Task** in the Actions pane.
+   - Provide a name, e.g., **Gaming_ETL_Job**, and click **Next**.
 
 3. **Set the Trigger**:
-   - Choose when you want the task to start (e.g., **Daily** or **Hourly**) and click **Next**.
-   - Configure the specific time and frequency settings as needed, then click **Next**.
+   - Choose **Daily** or **Hourly**.
+   - Configure the time and frequency settings.
 
 4. **Select the Action**:
    - Choose **Start a Program** and click **Next**.
 
 5. **Specify the Program**:
-   - Click **Browse** and select the `run_etl.bat` file from your project directory.
-   - Click **Next** to proceed.
+   - Click **Browse** and select `run_etl.bat` from your project directory.
 
 6. **Finish the Task Setup**:
-   - Review the settings and click **Finish** to create the task.
-   - Ensure the task is enabled and will run as scheduled.
+   - Click **Finish** to create the task.
+   - Ensure the task is enabled.
 
-![bq](screenshots/wts.png)
+![Task Scheduler](screenshots/wts.png)
 
-## 4. 🚀 Running the ETL Pipeline
+---
 
-You can run the ETL pipeline manually or rely on the scheduled task for automation.
+## 🚀 Running the ETL Pipeline
+
+You can run the ETL pipeline manually or rely on the scheduled task.
 
 ### Manual Execution
-
-To manually execute the ETL script, follow these steps:
 
 1. **Open a Command Prompt**:
    - Press `Win + R`, type `cmd`, and press `Enter`.
 
 2. **Navigate to the ETL Directory**:
-   - Use the `cd` command to navigate to the directory containing your ETL script.
    ```sh
    cd path\to\your\project\etl
+   ```
 
-Run the ETL Script:
-Execute the ETL script using Python.
+3. **Run the ETL Script**:
+   ```sh
+   python etl.py
+   ```
 
-use the command :  python etl.py
+![ETL Execution](screenshots/etl.png)
 
-![bq](screenshots/etl.png)
+---
 
-Note: Regularly monitor the Task Scheduler and ETL logs to ensure that the pipeline runs smoothly and any issues are addressed promptly.
+### Final Steps
 
-Final Steps
-Ensure that your Python environment is set up correctly and that all dependencies are installed.
-Verify that the Google Cloud SDK is authenticated and configured to use the correct project.
-Test the ETL script manually to ensure that it runs without errors before setting up automation.
+- Ensure that your Python environment is correctly set up.
+- Verify Google Cloud SDK authentication.
+- Test the ETL script manually before enabling automation.
 
-Note: Make sure to keep your JSON key file secure and do not share it publicly, as it contains sensitive information that can be used to access your Google Cloud resources.
+> **Note:** Keep your JSON key file secure, as it contains sensitive authentication credentials.
 
 
