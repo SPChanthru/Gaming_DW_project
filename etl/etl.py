@@ -3,7 +3,7 @@ from google.cloud import bigquery
 import os
 
 # Set Google Cloud authentication dynamically & check if the file exists
-credential_path = "C:\\Users\\spcha\\Downloads\\dw-midterm-project-94ccd5c877df.json"
+credential_path = r"C:\Users\spcha\Downloads\dw-midterm-project-94ccd5c877df.json"
 if not os.path.exists(credential_path):
     raise FileNotFoundError(f"Service account file not found: {credential_path}")
 
@@ -13,13 +13,13 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
 client = bigquery.Client()
 project_id = "dw-midterm-project"  
 dataset_name = "gaming_sessions"  
-dataset_id = "dw-midterm-project.gaming_sessions"  # Corrected this line
+dataset_id = f"{project_id}.{dataset_name}"
 
 # Define file paths using a dictionary for better organization
 file_paths = {
-    "players_file": "C:/Users/spcha/Desktop/gaming_dw_project/datasets/players.csv",
-    "sessions_file": "C:/Users/spcha/Desktop/gaming_dw_project/datasets/csv.csv",
-    "purchases_file": "C:/Users/spcha/Desktop/gaming_dw_project/datasets/purchases.csv"
+    "players_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\players.csv",
+    "sessions_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\csv.csv",
+    "purchases_file": r"C:\Users\spcha\Desktop\Gaming_DW_project\datasets\purchases.csv"
 }
 
 # Check if CSV files exist before reading and raise an error if not found
@@ -46,6 +46,13 @@ for df, required_cols, name in [
     if missing_cols:
         raise ValueError(f"Missing columns in {name}: {missing_cols}")
 
+# Add missing columns to players_df
+players_df['player_key'] = None  # Placeholder for player_key
+players_df['player_source_id'] = players_df['player_id']  # Assuming player_id is the source ID
+players_df['valid_from'] = pd.to_datetime('today').date()  # Set to today's date
+players_df['valid_to'] = pd.to_datetime('2262-04-11').date()  # Set to a far future date within bounds
+players_df['is_current'] = True  # Set to True
+
 # Transform: Convert date columns to proper format
 sessions_df["session_date"] = pd.to_datetime(sessions_df["session_date"]).dt.date
 purchases_df["purchase_date"] = pd.to_datetime(purchases_df["purchase_date"]).dt.date
@@ -59,12 +66,16 @@ fact_game_sessions = sessions_df.merge(purchases_agg, on="player_id", how="left"
 fact_game_sessions = fact_game_sessions.assign(total_spent=fact_game_sessions["total_spent"].fillna(0))
 
 # Define BigQuery schemas
-players_schema = [
-    bigquery.SchemaField("player_id", "INTEGER"),
+dim_player_schema = [
+    bigquery.SchemaField("player_key", "INTEGER"),
+    bigquery.SchemaField("player_source_id", "INTEGER"),
     bigquery.SchemaField("username", "STRING"),
     bigquery.SchemaField("level", "INTEGER"),
     bigquery.SchemaField("experience_points", "INTEGER"),
     bigquery.SchemaField("region", "STRING"),
+    bigquery.SchemaField("valid_from", "DATE"),
+    bigquery.SchemaField("valid_to", "DATE"),
+    bigquery.SchemaField("is_current", "BOOLEAN"),
 ]
 
 fact_game_sessions_schema = [
@@ -102,7 +113,7 @@ def load_to_bigquery(df, table_name, schema):
     print(f" Uploaded {table_name} successfully!")
 
 # Load tables into BigQuery
-load_to_bigquery(players_df, "dim_player", players_schema)  # Changed table name to "dim_player"
+load_to_bigquery(players_df, "dim_player", dim_player_schema)  # Changed table name to "dim_player"
 load_to_bigquery(fact_game_sessions, "fact_game_sessions", fact_game_sessions_schema)
 
 print("🚀 ETL Automation Complete!")
