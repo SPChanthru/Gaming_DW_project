@@ -49,7 +49,7 @@ GAMING_DW_PROJECT/
 ├── README.md                  # This README file
 ```
 
-> **Note:** The final documentation includes all the deliverables and screenshots.
+> **Note:** The final documentation includes all the deliverables, scripts and screenshots.
 
 ---
 
