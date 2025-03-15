@@ -67,6 +67,8 @@ Assign the BigQuery Admin role to the service account to allow it to manage BigQ
 Create a Key:
 Click on the service account you just created.
 Go to the Keys tab.
+![bq](path/to/diagram.png)
+
 Click Add Key > Create New Key.
 Select JSON and click Create. This will download a JSON key file to your computer.
 
