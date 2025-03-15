@@ -8,8 +8,8 @@ This project implements a **Gaming Data Warehouse** to analyze player engagement
 
 1. [📁 Project Structure](#project-structure)
 2. [⚙️ Setup Instructions](#setup-instructions)
-3. [⏰ ETL Automation with Task Scheduler](#etl-automation-with-task-scheduler)
-4. [🚀 Running the ETL Pipeline](#running-the-etl-pipeline)
+3. [🚀 Running the ETL Pipeline](#running-the-etl-pipeline)
+4. [⏰ ETL Automation with Task Scheduler](#etl-automation-with-task-scheduler)
 
 ---
 
@@ -117,7 +117,28 @@ set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your\key.json
   Use the SQL scripts in the `scripts/` directory to create the necessary tables in your BigQuery dataset.
 
 ---
+## 🚀 Running the ETL Pipeline
 
+You can run the ETL pipeline manually or rely on the scheduled task.
+
+### Manual Execution
+
+1. **Open a Command Prompt**:
+   - Press `Win + R`, type `cmd`, and press `Enter`.
+
+2. **Navigate to the ETL Directory**:
+   ```sh
+   cd path\to\your\project\etl
+   ```
+
+3. **Run the ETL Script**:
+   ```sh
+   python etl.py
+   ```
+
+![ETL Execution](screenshots/etl.png)
+
+---
 ## ⏰ ETL Automation with Task Scheduler
 
 To automate the ETL pipeline, use **Windows Task Scheduler**.
@@ -146,29 +167,6 @@ To automate the ETL pipeline, use **Windows Task Scheduler**.
    - Ensure the task is enabled.
 
 ![Task Scheduler](screenshots/wts.png)
-
----
-
-## 🚀 Running the ETL Pipeline
-
-You can run the ETL pipeline manually or rely on the scheduled task.
-
-### Manual Execution
-
-1. **Open a Command Prompt**:
-   - Press `Win + R`, type `cmd`, and press `Enter`.
-
-2. **Navigate to the ETL Directory**:
-   ```sh
-   cd path\to\your\project\etl
-   ```
-
-3. **Run the ETL Script**:
-   ```sh
-   python etl.py
-   ```
-
-![ETL Execution](screenshots/etl.png)
 
 ---
 
